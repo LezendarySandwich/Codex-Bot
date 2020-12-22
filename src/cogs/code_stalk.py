@@ -2,8 +2,7 @@ import asyncio
 import discord
 from discord.ext import commands
 import logging
-import pymongo
-from util import constants as constant
+from util import constants
 from util import codeforces_manager as cf
 from util import discord_manager as dm
 
@@ -16,23 +15,25 @@ class code_stalk(commands.Cog):
     
     async def check_submissions(self):
         while True:
+            members = self.guild.fetch_members(limit=None)
+            # issue: members not updating
             for member in self.guild.members:
-                problems = await cf.get_latest_submissions(member.nick or member.name, self.collection)
+                problems = await cf.get_latest_submissions(member.nick or member.name)
                 for problem in problems:
                     await self.channel.send(embed=dm.embed_code_stalk(problem=problem))
+            # sleep to schedule the logging messages
+            await asyncio.sleep(2)
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.guild = discord.utils.get(self.bot.guilds, name=constant.GUILD)
-        self.channel = discord.utils.get(self.guild.channels, name=constant.DISCORD_BOT_CHANNEL_NAME)
-        self.client = pymongo.MongoClient(constant.MONOGODB_URI)
-        self.collection = self.client["CodeStalker"]["Users"]
+        self.guild = discord.utils.get(self.bot.guilds, name=constants.GUILD)
+        self.channel = discord.utils.get(self.guild.channels, name=constants.DISCORD_BOT_CHANNEL_NAME)
         if not self.channel:
             logger.critical("Code-Stalk channel not set")
         else:
             logger.info(f'{self.bot.user} connected to server {self.guild.name}!')
             task = asyncio.create_task(self.check_submissions())
-            await task
+            # await task
 
 
 def setup(bot):

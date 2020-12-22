@@ -1,11 +1,16 @@
+import pymongo
+from . import constants
 from collections import OrderedDict
 from datetime import date
+
+client = pymongo.MongoClient(constants.MONOGODB_URI)
+collection = client["CodeStalker"]["Users"]
 
 def schema_code_stalker():
     '''
     Creates the collection for Users in the database if the collection already does not exist
     '''
-    if collection not in db.list_collection_names():
+    if 'Users' not in db.list_collection_names():
         validator = {
             "$jsonSchema": {
                 "bsonType": "object",
@@ -35,13 +40,13 @@ def schema_code_stalker():
                 }
             }
         }
-        db.create_collection(collection)
-        query = [('collMod', collection),
+        db.create_collection('Users')
+        query = [('collMod', 'Users'),
                  ('validator', validator)]
         db.command(OrderedDict(query))
 
 
-def create_index_users(collection):
+def create_index_users():
     '''
     creates the required indexes over fields
     '''
@@ -52,7 +57,7 @@ def create_index_users(collection):
         print(collection.index_information())
 
 
-def user_exist_db(handle: str, collection):
+def user_exist_db(handle: str):
     '''
     returns true if the user exists in the database otherwise False
     '''
@@ -61,7 +66,7 @@ def user_exist_db(handle: str, collection):
     return bool(doc.count())
 
 
-def check_solved(handle: str, link: str, collection):
+def check_solved(handle: str, link: str):
     '''
     returns true if the user had solved the problem otherwise False
     '''
@@ -74,15 +79,15 @@ def check_solved(handle: str, link: str, collection):
     return bool(doc.count())
 
 
-def insert_users_db(handle: str, collection, link: str = None):
+def insert_users_db(handle: str, link: str = None):
     '''
     inserts user in the database if it does not already exist\
         also pushes the link to his solved problems if not already present
     '''
-    if not user_exist_db(handle=handle, collection=collection):
+    if not user_exist_db(handle=handle):
         query = {"handle": handle}
         collection.insert_one(query)
-    if link is not None and not check_solved(handle=handle, link=link, collection=collection):
+    if link is not None and not check_solved(handle=handle, link=link):
         date_current = date.today().strftime("%Y/%m/%d")
         collection.update_one({"handle": handle}, {"$push": {"solved_problems": {
                                   "problem_link": link, "time_solved": date_current}}})

@@ -33,7 +33,7 @@ class Logging(commands.Cog, logging.Handler):
     async def _log_task(self):
         while True:
             record = await self.queue.get()
-            channel = self.bot.get_channel(self.channel_id)
+            channel = self.bot.get_channel(788434964416430080)
             if channel is None:
                 # Channel no longer exists.
                 root_logger.removeHandler(self)
