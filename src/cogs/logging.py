@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 Set Handler for root logger to direct log messages to discord channel
 '''
 
+
 class Logging(commands.Cog, logging.Handler):
     def __init__(self, bot, channel_id):
         logging.Handler.__init__(self)

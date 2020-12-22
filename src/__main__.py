@@ -9,7 +9,8 @@ root_logger = logging.getLogger()
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or('! '), description="Codex Discord Bot", intents = intents)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(
+    '! '), description="Codex Discord Bot", intents=intents)
 
 cogs = [file.stem for file in Path('src', 'cogs').glob('*.py')]
 

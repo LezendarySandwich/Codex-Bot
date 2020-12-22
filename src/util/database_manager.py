@@ -6,6 +6,7 @@ from datetime import date
 client = pymongo.MongoClient(constants.MONOGODB_URI)
 collection = client["CodeStalker"]["Users"]
 
+
 def schema_code_stalker():
     '''
     Creates the collection for Users in the database if the collection already does not exist
@@ -90,4 +91,4 @@ def insert_users_db(handle: str, link: str = None):
     if link is not None and not check_solved(handle=handle, link=link):
         date_current = date.today().strftime("%Y/%m/%d")
         collection.update_one({"handle": handle}, {"$push": {"solved_problems": {
-                                  "problem_link": link, "time_solved": date_current}}})
+            "problem_link": link, "time_solved": date_current}}})
