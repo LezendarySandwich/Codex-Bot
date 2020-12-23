@@ -1,0 +1,10 @@
+version: '3'
+
+services: 
+  codex:
+    container_name: codex_bot
+    build: .
+    volumes: 
+      - .:/app
+    env_file: 
+      - src/.env
