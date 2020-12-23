@@ -1,6 +1,7 @@
 import discord
 import logging
 from datetime import datetime
+from . import constants
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ def embed_code_stalk(problem):
     r_embed = discord.Embed(title=problem.handle, type="rich")
     r_embed.set_author(
         name="CodexBot",
-        icon_url="https://drive.google.com/uc?export=view&id=11VIKXSdacdLEeWndZYcadz8R3IJRNmLI")
+        icon_url=constants.CODEX_ICON_URI)
     r_embed.add_field(name="Task", value=problem.problem_name)
     r_embed.add_field(name="Rating", value=problem.rating)
     r_embed.add_field(name="Tags", value=tags)

@@ -19,4 +19,7 @@ constants for discord manager
 '''
 BOT_TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
 GUILD = os.environ.get("DISCORD_GUILD")
-DISCORD_BOT_CHANNEL_NAME = os.environ.get('DISCORD_BOT_CHANNEL_NAME')
+DISCORD_BOT_CHANNEL_ID = int(os.environ.get('DISCORD_BOT_CHANNEL_ID'))
+LOGGING_COG_CHANNEL_ID = int(os.environ.get('LOGGING_COG_CHANNEL_ID'))
+CODEX_ICON_URI = os.environ.get('CODEX_ICON_URI')
+HALL_OF_FAME_ID = os.environ.get('HALL_OF_FAME_ID')

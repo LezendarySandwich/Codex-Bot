@@ -1,7 +1,7 @@
-from . import constants
 import requests
 import logging
 import json
+from . import constants
 from . import database_manager as db
 
 logger = logging.getLogger(__name__)
@@ -32,8 +32,11 @@ async def parse_submissions_response(username: str, response: str):
     return a list of Problems from the json
     :rtype: list(Problem)
     '''
-    if not response or response['status'] == 'FAILED':
-        logger.warn(f'Status: Failed, handle: {username}')
+    if not response:
+        return list()
+    if response['status'] == 'FAILED':
+        comment = response['comment']
+        logger.warn(f'Status: Failed, handle: {username}, comment: {comment}')
         return list()
     submissions = response['result']
     new_solved_problems = []

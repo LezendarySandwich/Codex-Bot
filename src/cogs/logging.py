@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from util import constants
 
 from discord.ext import commands
 
@@ -34,7 +35,7 @@ class Logging(commands.Cog, logging.Handler):
     async def _log_task(self):
         while True:
             record = await self.queue.get()
-            channel = self.bot.get_channel(788434964416430080)
+            channel = self.bot.get_channel(self.channel_id)
             if channel is None:
                 # Channel no longer exists.
                 root_logger.removeHandler(self)
@@ -59,14 +60,13 @@ class Logging(commands.Cog, logging.Handler):
 
 
 def setup(bot):
-    logging_cog_channel_id = os.environ.get('LOGGING_COG_CHANNEL_ID')
-    if logging_cog_channel_id is None:
+    if constants.LOGGING_COG_CHANNEL_ID is None:
         logger.info(
             'Skipping installation of logging cog'
             'as logging channel is not provided.')
         return
 
-    logging_cog = Logging(bot, int(logging_cog_channel_id))
+    logging_cog = Logging(bot, constants.LOGGING_COG_CHANNEL_ID)
     logging_cog.setLevel(logging.WARNING)
     logging_cog.setFormatter(
         logging.Formatter(

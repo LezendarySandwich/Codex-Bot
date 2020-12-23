@@ -27,11 +27,11 @@ class code_stalk(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        print('Here')
         self.guild = discord.utils.get(self.bot.guilds, name=constants.GUILD)
-        self.channel = discord.utils.get(
-            self.guild.channels,
-            name=constants.DISCORD_BOT_CHANNEL_NAME)
+        self.channel = self.bot.get_channel(constants.DISCORD_BOT_CHANNEL_ID)
         if not self.channel:
+            print('Here')
             logger.critical("Code-Stalk channel not set")
         else:
             logger.info(
