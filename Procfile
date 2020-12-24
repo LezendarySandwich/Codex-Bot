@@ -1,1 +1,1 @@
-botrunner: python3 -m src/__main__.py
+botrunner: python3  src/__main__.py
