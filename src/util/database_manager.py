@@ -97,7 +97,7 @@ def create_index_contests():
         Contest_db.create_index([("contestId", 1)])
         Contest_db.create_index([("time_created", 1)])
 
-def user_exist_db(handle: str):
+async def user_exist_db(handle: str):
     '''
     returns true if the user exists in the database otherwise False
     '''
@@ -105,7 +105,7 @@ def user_exist_db(handle: str):
     doc = User_db.find(query)
     return bool(doc.count())
 
-def check_solved(handle: str, link: str):
+async def check_solved(handle: str, link: str):
     '''
     returns true if the user had solved the problem otherwise False
     '''
@@ -117,7 +117,7 @@ def check_solved(handle: str, link: str):
     doc = User_db.find(query)
     return bool(doc.count())
 
-def stalk_sub_check(handle: str):
+async def stalk_sub_check(handle: str):
     '''
     returns True if the person is subscribed to stalking services of the bot otherwise returns False
     '''
@@ -128,7 +128,7 @@ def stalk_sub_check(handle: str):
     result = doc["subbed_code_stalk"] if entries_status else True
     return result
 
-def stalk_sub_update(handle: str, sub_status: bool):
+async def stalk_sub_update(handle: str, sub_status: bool):
     '''
     updates the subbed_code_stalk field for the user
     '''
@@ -136,7 +136,7 @@ def stalk_sub_update(handle: str, sub_status: bool):
     newvalues = { "$set": { "subbed_code_stalk": sub_status } }
     User_db.update_one(query, newvalues)
 
-def insert_users_db(handle: str, link: str = None):
+async def insert_users_db(handle: str, link: str = None):
     '''
     inserts user in the database if it does not already exist\
         also pushes the link to his solved problems if not already present
@@ -144,17 +144,18 @@ def insert_users_db(handle: str, link: str = None):
     if not user_exist_db(handle=handle):
         query = {"handle": handle, "subbed_code_stalk": True}
         User_db.insert_one(query)
-    if link is not None and not check_solved(handle=handle, link=link):
+    solved = await check_solved(handle=handle, link=link)
+    if link is not None and not solved:
         date_current = date.today().strftime("%Y/%m/%d")
         User_db.update_one({"handle": handle}, {"$push": {"solved_problems": {
             "problem_link": link, "time_solved": date_current}}})
 
-def contest_check(contestId: int):
+async def contest_check(contestId: int):
     query = {"contestId": contestId}
     doc = Contest_db.find(query)
     return bool(doc.count())
 
-def insert_contest(contestId: int):
+async def insert_contest(contestId: int):
     if not contest_check(contestId):
         date_current = date.today().strftime("%Y/%m/%d")
         query = {

@@ -20,9 +20,9 @@ class code_stalk(commands.Cog):
             members = await self.guild.fetch_members(limit=None).flatten()
             for member in members:
                 handle = member.nick or member.name
-                subbed = db.stalk_sub_check(handle)
+                subbed = await db.stalk_sub_check(handle)
                 if not subbed: 
-                    logger.warn(f'handle:{handle} Not subbed')
+                    logger.info(f'handle:{handle} Not subbed')
                     continue
                 problems = await cf.get_latest_submissions(handle)
                 for problem in problems:
@@ -42,13 +42,13 @@ class code_stalk(commands.Cog):
         User.display_name, which will try to to use the users server-specific nickname, but will fall back to the general username if that is not found
         '''
         handle = ctx.message.author.display_name
-        db.stalk_sub_update(handle, False)
+        await db.stalk_sub_update(handle, False)
         await ctx.channel.send(f'Switching off the services for {handle}')
     
     @stalk.command(brief="Re/Subscribe to the stalking services of the bot")
     async def on(self, ctx):
         handle = ctx.message.author.display_name
-        db.stalk_sub_update(handle, True)
+        await db.stalk_sub_update(handle, True)
         await ctx.channel.send(f'Switching on the services for {handle}')
 
     @commands.Cog.listener()
@@ -64,4 +64,5 @@ class code_stalk(commands.Cog):
 
 
 def setup(bot):
+    logger.setLevel(logging.INFO)
     bot.add_cog(code_stalk(bot))

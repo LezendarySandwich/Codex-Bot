@@ -55,7 +55,8 @@ class rating_rank_stalk(commands.Cog):
             logger.critical('Hall of fame channel not set')
         else:
             logger.info('Connected to Hall Of Fame')
-            await self.do_every(5, self.contest_new)
+            await self.do_every(constants.CONTEST_CHECK, self.contest_new)
 
 def setup(bot):
+    logger.setLevel(logging.INFO)
     bot.add_cog(rating_rank_stalk(bot))

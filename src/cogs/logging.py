@@ -67,7 +67,7 @@ def setup(bot):
         return
 
     logging_cog = Logging(bot, constants.LOGGING_COG_CHANNEL_ID)
-    logging_cog.setLevel(logging.WARNING)
+    logging_cog.setLevel(logging.INFO)
     logging_cog.setFormatter(
         logging.Formatter(
             fmt='{asctime}:{levelname}:{name}:{message}',

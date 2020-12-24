@@ -46,8 +46,9 @@ async def parse_submissions_response(username: str, response: str):
             task = submission["problem"]
             problem = Problem(str(task["contestId"]), str(task["index"]), str(
                 task["rating"]), list(task["tags"]), str(task["name"]), username)
-            if not db.check_solved(handle=username, link=problem.url_get()):
-                db.insert_users_db(handle=username, link=problem.url_get())
+            solved = await db.check_solved(handle=username, link=problem.url_get())
+            if not solved:
+                await db.insert_users_db(handle=username, link=problem.url_get())
                 new_solved_problems.append(problem)
     return new_solved_problems
 
@@ -78,5 +79,6 @@ async def latest_get_contest(handle: str):
         logger.warn(f'Status: Failed, handle: {handle}, comment: {comment}')
         return None
     else: 
-        if not db.contest_check(response['result'][-1]['contestId']): return response['result'][-1]
+        in_database = await db.contest_check(response['result'][-1]['contestId'])
+        if not in_database: return response['result'][-1]
         else: return None
