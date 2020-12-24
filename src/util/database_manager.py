@@ -141,7 +141,8 @@ async def insert_users_db(handle: str, link: str = None):
     inserts user in the database if it does not already exist\
         also pushes the link to his solved problems if not already present
     '''
-    if not user_exist_db(handle=handle):
+    user_exists = await user_exist_db(handle=handle)
+    if not user_exists:
         query = {"handle": handle, "subbed_code_stalk": True}
         User_db.insert_one(query)
     solved = await check_solved(handle=handle, link=link)
@@ -156,7 +157,8 @@ async def contest_check(contestId: int):
     return bool(doc.count())
 
 async def insert_contest(contestId: int):
-    if not contest_check(contestId):
+    contest_exist = await contest_check(contestId)
+    if not contest_exist:
         date_current = date.today().strftime("%Y/%m/%d")
         query = {
             "contestId": contestId,
