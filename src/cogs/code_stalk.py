@@ -5,6 +5,7 @@ import logging
 from util import constants
 from util import codeforces_manager as cf
 from util import discord_manager as dm
+from util import database_manager as db
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,12 @@ class code_stalk(commands.Cog):
         while True:
             members = await self.guild.fetch_members(limit=None).flatten()
             for member in members:
-                problems = await cf.get_latest_submissions(member.nick or member.name)
+                handle = member.nick or member.name
+                subbed = db.stalk_sub_check(handle)
+                if not subbed: 
+                    logger.warn(f'handle:{handle} Not subbed')
+                    continue
+                problems = await cf.get_latest_submissions(handle)
                 for problem in problems:
                     await self.channel.send(embed=await dm.embed_code_stalk(problem=problem))
             # sleep to schedule the logging messages
@@ -32,11 +38,18 @@ class code_stalk(commands.Cog):
 
     @stalk.command(brief="Unsubscribe from the stalking services of the bot")
     async def off(self, ctx):
-        pass
+        '''
+        User.display_name, which will try to to use the users server-specific nickname, but will fall back to the general username if that is not found
+        '''
+        handle = ctx.message.author.display_name
+        db.stalk_sub_update(handle, False)
+        await ctx.channel.send(f'Switching off the services for {handle}')
     
     @stalk.command(brief="Re/Subscribe to the stalking services of the bot")
     async def on(self, ctx):
-        pass
+        handle = ctx.message.author.display_name
+        db.stalk_sub_update(handle, True)
+        await ctx.channel.send(f'Switching on the services for {handle}')
 
     @commands.Cog.listener()
     async def on_ready(self):

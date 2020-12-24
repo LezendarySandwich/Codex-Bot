@@ -2,6 +2,7 @@ import pymongo
 from . import constants
 from collections import OrderedDict
 from datetime import date
+import time
 
 client = pymongo.MongoClient(constants.MONOGODB_URI)
 db = client["CodeStalker"]
@@ -16,11 +17,15 @@ def schema_code_stalker():
         validator = {
             "$jsonSchema": {
                 "bsonType": "object",
-                "required": ["handle"],
+                "required": ["handle", "subbed_code_stalk"],
                 "properties": {
                     "handle": {
                         "bsonType": "string",
                         "description": "Codeforces handle of the discord users",
+                    },
+                    "subbed_code_stalk":{
+                        "bsonType": "bool",
+                        "description": "True if the user allows the bot to stalk him otherwise False"
                     },
                     "solved_problems": {
                         "bsonType": "array",
@@ -100,7 +105,6 @@ def user_exist_db(handle: str):
     doc = User_db.find(query)
     return bool(doc.count())
 
-
 def check_solved(handle: str, link: str):
     '''
     returns true if the user had solved the problem otherwise False
@@ -113,6 +117,24 @@ def check_solved(handle: str, link: str):
     doc = User_db.find(query)
     return bool(doc.count())
 
+def stalk_sub_check(handle: str):
+    '''
+    returns True if the person is subscribed to stalking services of the bot otherwise returns False
+    '''
+    query = {"handle": handle}
+    doc = User_db.find(query)
+    entries_status = doc.count()
+    for i in doc: doc = i
+    result = doc["subbed_code_stalk"] if entries_status else True
+    return result
+
+def stalk_sub_update(handle: str, sub_status: bool):
+    '''
+    updates the subbed_code_stalk field for the user
+    '''
+    query = {"handle": handle}
+    newvalues = { "$set": { "subbed_code_stalk": sub_status } }
+    User_db.update_one(query, newvalues)
 
 def insert_users_db(handle: str, link: str = None):
     '''
@@ -120,7 +142,7 @@ def insert_users_db(handle: str, link: str = None):
         also pushes the link to his solved problems if not already present
     '''
     if not user_exist_db(handle=handle):
-        query = {"handle": handle}
+        query = {"handle": handle, "subbed_code_stalk": True}
         User_db.insert_one(query)
     if link is not None and not check_solved(handle=handle, link=link):
         date_current = date.today().strftime("%Y/%m/%d")
