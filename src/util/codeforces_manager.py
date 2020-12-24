@@ -65,3 +65,18 @@ async def get_latest_submissions(username: str):
     except requests.exceptions.ConnectionError:
         logger.exception('Connection Error')
         return parse_submissions_response(username, response=None)
+
+async def latest_get_contest(handle: str):
+    '''
+    return last two contests given by the user
+    :rtype: list of object RatingChange: e.g. https://codeforces.com/api/user.rating?handle=Fefer_Ivan
+    '''
+    response = requests.get(f'https://codeforces.com/api/user.rating?handle={handle}')
+    response = json.loads(response.text)
+    if response['status'] == 'FAILED':
+        comment = response['comment']
+        logger.warn(f'Status: Failed, handle: {handle}, comment: {comment}')
+        return None
+    else: 
+        if not db.contest_check(response['result'][-1]['contestId']): return response['result'][-1]
+        else: return None

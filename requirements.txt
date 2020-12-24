@@ -1,5 +1,4 @@
 requests
-timeloop
 discord
 python-dotenv
 pymongo
