@@ -36,7 +36,7 @@ async def parse_submissions_response(username: str, response: str):
         return list()
     if response['status'] == 'FAILED':
         comment = response['comment']
-        logger.warn(f'Status: Failed, handle: {username}, comment: {comment}')
+        logger.info(f'Status: Failed, handle: {username}, comment: {comment}')
         return list()
     submissions = response['result']
     new_solved_problems = []
@@ -76,7 +76,7 @@ async def latest_get_contest(handle: str):
     response = json.loads(response.text)
     if response['status'] == 'FAILED':
         comment = response['comment']
-        logger.warn(f'Status: Failed, handle: {handle}, comment: {comment}')
+        logger.info(f'Status: Failed, handle: {handle}, comment: {comment}')
         return None
     else: 
         in_database = await db.contest_check(response['result'][-1]['contestId'])
