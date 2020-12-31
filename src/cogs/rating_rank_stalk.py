@@ -23,13 +23,13 @@ class rating_rank_stalk(commands.Cog):
         # rank_members = list(member, rank)
         for member in members:
             contest = await cf.latest_get_contest(member.nick or member.name)
-            if contest is None or contest['ratingUpdateTimeSeconds'] > 100000: continue
+            if contest is None or contest['ratingUpdateTimeSeconds'] - time.time() > 100000: continue
             if contest_name is None: 
                 contest_name = contest['contestName']
                 contest_id = contest['contestId']
             rating_change[member.nick or member.name] = (contest['oldRating'], contest['newRating'])
             rank_members.append((member.nick or member.name, contest['rank']))
-        
+        logger.warn(f'contenst name: {contest_name}, contest id: {contest_id}')
         if contest_name:
             # sort according to ranks
             rank_members.sort(key=lambda x: x[1])
