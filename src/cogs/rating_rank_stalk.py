@@ -16,13 +16,14 @@ class rating_rank_stalk(commands.Cog):
         self.bot = bot
 
     async def contest_new(self):
+        logger.warn('Checking Contests')
         members = await self.guild.fetch_members(limit=None).flatten()
         contest_name, contest_id = None, None
         rating_change, rank_members = dict(), list()
         # rank_members = list(member, rank)
         for member in members:
             contest = await cf.latest_get_contest(member.nick or member.name)
-            if contest is None or contest['ratingUpdateTimeSeconds'] > constants.CONTEST_CHECK: continue
+            if contest is None or contest['ratingUpdateTimeSeconds'] > 100000: continue
             if contest_name is None: 
                 contest_name = contest['contestName']
                 contest_id = contest['contestId']
