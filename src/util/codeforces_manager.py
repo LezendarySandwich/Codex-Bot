@@ -79,6 +79,7 @@ async def latest_get_contest(handle: str):
         logger.info(f'Status: Failed, handle: {handle}, comment: {comment}')
         return None
     else: 
+        if not response['result']: return None
         in_database = await db.contest_check(response['result'][-1]['contestId'])
         if not in_database: return response['result'][-1]
         else: return None

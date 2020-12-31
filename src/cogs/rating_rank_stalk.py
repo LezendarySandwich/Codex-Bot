@@ -23,7 +23,7 @@ class rating_rank_stalk(commands.Cog):
         # rank_members = list(member, rank)
         for member in members:
             contest = await cf.latest_get_contest(member.nick or member.name)
-            if contest is None or contest['ratingUpdateTimeSeconds'] - time.time() > 100000: continue
+            if contest is None or time.time() - contest['ratingUpdateTimeSeconds'] > 100000: continue
             checked = await db.contest_check(contest['contestId'])
             if checked: continue
             if contest_name is None: 
