@@ -24,6 +24,8 @@ class rating_rank_stalk(commands.Cog):
         for member in members:
             contest = await cf.latest_get_contest(member.nick or member.name)
             if contest is None or contest['ratingUpdateTimeSeconds'] - time.time() > 100000: continue
+            checked = await db.contest_check(contest['contestId'])
+            if checked: continue
             if contest_name is None: 
                 contest_name = contest['contestName']
                 contest_id = contest['contestId']
@@ -35,7 +37,7 @@ class rating_rank_stalk(commands.Cog):
             rank_members.sort(key=lambda x: x[1])
             await self.channel.send(embed=await dm.embed_rank_stalk(ranklist=rank_members, contest_name=contest_name))
             await self.channel.send(embed=await dm.embed_rating_stalk(rating_change=rating_change))
-            db.insert_contest(contestId=contest_id)
+            await db.insert_contest(contestId=contest_id)
 
     async def do_every(self, period, f, *args):
         def g_tick():
