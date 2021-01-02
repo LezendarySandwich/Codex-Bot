@@ -17,27 +17,29 @@ class rating_rank_stalk(commands.Cog):
 
     async def contest_new(self):
         logger.warn('Checking Contests')
-        members = await self.guild.fetch_members(limit=None).flatten()
-        contest_name, contest_id = None, None
-        rating_change, rank_members = dict(), list()
-        # rank_members = list(member, rank)
-        for member in members:
-            contest = await cf.latest_get_contest(member.nick or member.name)
-            if contest is None or time.time() - contest['ratingUpdateTimeSeconds'] > 100000: continue
-            checked = await db.contest_check(contest['contestId'])
-            if checked: continue
-            if contest_name is None: 
-                contest_name = contest['contestName']
-                contest_id = contest['contestId']
-            rating_change[member.nick or member.name] = (contest['oldRating'], contest['newRating'])
-            rank_members.append((member.nick or member.name, contest['rank']))
-        logger.warn(f'contenst name: {contest_name}, contest id: {contest_id}')
-        if contest_name:
-            # sort according to ranks
-            rank_members.sort(key=lambda x: x[1])
-            await self.channel.send(embed=await dm.embed_rank_stalk(ranklist=rank_members, contest_name=contest_name))
-            await self.channel.send(embed=await dm.embed_rating_stalk(rating_change=rating_change))
-            await db.insert_contest(contestId=contest_id)
+        for i in range(2):
+            members = await self.guild.fetch_members(limit=None).flatten()
+            contest_name, contest_id = None, None
+            rating_change, rank_members = dict(), list()
+            # rank_members = list(member, rank)
+            for member in members:
+                contest = await cf.latest_get_contest(member.nick or member.name)
+                if contest is None or time.time() - contest['ratingUpdateTimeSeconds'] > 100000: continue
+                checked = await db.contest_check(contest['contestId'])
+                if checked: continue
+                if contest_name is None: 
+                    contest_name = contest['contestName']
+                    contest_id = contest['contestId']
+                if contest_id is not contest['contestId']: continue
+                rating_change[member.nick or member.name] = (contest['oldRating'], contest['newRating'])
+                rank_members.append((member.nick or member.name, contest['rank']))
+            logger.warn(f'contenst name: {contest_name}, contest id: {contest_id}')
+            if contest_name:
+                # sort according to ranks
+                rank_members.sort(key=lambda x: x[1])
+                await self.channel.send(embed=await dm.embed_rank_stalk(ranklist=rank_members, contest_name=contest_name))
+                await self.channel.send(embed=await dm.embed_rating_stalk(rating_change=rating_change))
+                await db.insert_contest(contestId=contest_id)
 
     async def do_every(self, period, f, *args):
         def g_tick():
